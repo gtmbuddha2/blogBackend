@@ -8,21 +8,22 @@ import {
   Body,
   HttpCode,
 } from '@nestjs/common';
-import blog_data from './data';
 import { Category } from './data';
-import { v4 as uuid } from 'uuid';
+import { AppService } from './app.service';
 
 @Controller('blog/post/:category')
 export class AppController {
+  constructor(private readonly appService: AppService) {}
+
   @Get('allPosts')
   getAllBlogPosts() {
-    return blog_data.posts;
+    return this.appService.getAllBlogPosts();
   }
 
   @Get('all')
   getAllBlogPostsByCategory(@Param('category') category: string) {
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    return blog_data.posts.filter((post) => post.category === cat);
+    return this.appService.getAllBlogPostsByCategory(cat);
   }
 
   @Get(':id')
@@ -31,11 +32,7 @@ export class AppController {
     @Param('category') category: string,
   ) {
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    const data = blog_data.posts.filter(
-      (post) => post.category === cat && post.id === id,
-    );
-
-    return data;
+    return this.appService.getBlogPostById(cat, id);
   }
 
   @Post('')
@@ -52,19 +49,8 @@ export class AppController {
     },
     @Param('category') category: string,
   ) {
-    const newBlogPost = {
-      id: uuid(),
-      title,
-      created_at: new Date(),
-      updated_at: new Date(),
-      author,
-      body,
-      category: category === 'dog' ? Category.DOG : Category.CAT,
-    };
-
-    blog_data.posts.push(newBlogPost);
-
-    return newBlogPost;
+    const cat = category === 'dog' ? Category.DOG : Category.CAT;
+    return this.appService.createNewBlogPost({ title, author, body }, cat);
   }
 
   @Put(':id')
@@ -77,33 +63,14 @@ export class AppController {
     @Param('id') id: string,
     @Param('category') category: string,
   ) {
-    console.log(body);
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    const data = blog_data.posts
-      .filter((post) => post.category === cat)
-      .find((post) => post.id === id);
-    console.log(data);
-
-    if (!data) return;
-
-    const dataIndex = blog_data.posts.findIndex((post) => post.id === data.id);
-
-    blog_data.posts[dataIndex] = {
-      ...blog_data.posts[dataIndex],
-      ...body,
-    };
-
-    return blog_data.posts[dataIndex];
+    return this.appService.updateBlogPostById(body, cat, id);
   }
 
   @HttpCode(204)
   @Delete(':id')
   deleteBlogPostById(@Param('id') id: string) {
-    const postIndex = blog_data.posts.findIndex((post) => post.id === id);
-
-    if (postIndex === -1) return;
-
-    blog_data.posts.splice(postIndex, 1);
+    this.appService.deleteBlogPostById(id);
 
     // return;
   }
