@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 export enum Category {
   DOG = 'dog',
   CAT = 'cat',
@@ -20,7 +22,7 @@ type Data = {
 const blog_data: Data = {
   posts: [
     {
-      id: '1',
+      id: uuid(),
       title: 'Powerful Trading Tools and Features for Experienced Investors',
       created_at: new Date(),
       updated_at: new Date(),
@@ -29,7 +31,7 @@ const blog_data: Data = {
       category: Category.DOG,
     },
     {
-      id: '2',
+      id: uuid(),
       title: '2023 Indian Premier League',
       created_at: new Date(),
       updated_at: new Date(),
@@ -38,7 +40,7 @@ const blog_data: Data = {
       category: Category.DOG,
     },
     {
-      id: '3',
+      id: uuid(),
       title: 'Powerful Trading Tools and Features for Experienced Investors',
       created_at: new Date(),
       updated_at: new Date(),
@@ -47,7 +49,7 @@ const blog_data: Data = {
       category: Category.CAT,
     },
     {
-      id: '4',
+      id: uuid(),
       title: 'Powerful Trading Tools and Features for Experienced Investors',
       created_at: new Date(),
       updated_at: new Date(),

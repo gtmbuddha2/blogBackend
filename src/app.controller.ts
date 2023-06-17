@@ -7,11 +7,13 @@ import {
   Param,
   Body,
   HttpCode,
+  ParseUUIDPipe,
+  ParseEnumPipe,
 } from '@nestjs/common';
 import { Category } from './data';
 import { AppService } from './app.service';
 
-@Controller('blog/post/:category')
+@Controller('blog/post/')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -20,19 +22,19 @@ export class AppController {
     return this.appService.getAllBlogPosts();
   }
 
-  @Get('all')
-  getAllBlogPostsByCategory(@Param('category') category: string) {
+  @Get(':category/all')
+  getAllBlogPostsByCategory(
+    @Param('category', new ParseEnumPipe(Category)) category: string,
+  ) {
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
     return this.appService.getAllBlogPostsByCategory(cat);
   }
 
   @Get(':id')
-  getBlogPostById(
-    @Param('id') id: string,
-    @Param('category') category: string,
-  ) {
-    const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    return this.appService.getBlogPostById(cat, id);
+  getBlogPostById(@Param('id', ParseUUIDPipe) id: string) {
+    // @Param('id', ParseIntPipe)
+    // console.log(id, typeof id);
+    return this.appService.getBlogPostById(id);
   }
 
   @Post('')
@@ -42,15 +44,24 @@ export class AppController {
       title,
       author,
       body,
+      category,
     }: {
       title: string;
       author: string;
       body: string;
+      category: Category;
     },
-    @Param('category') category: string,
   ) {
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    return this.appService.createNewBlogPost({ title, author, body }, cat);
+
+    const data = {
+      title,
+      author,
+      body,
+      category: cat,
+    };
+
+    return this.appService.createNewBlogPost(data);
   }
 
   @Put(':id')
@@ -59,17 +70,23 @@ export class AppController {
     body: {
       title: string;
       body: string;
+      cat: string;
     },
-    @Param('id') id: string,
-    @Param('category') category: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ) {
-    const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    return this.appService.updateBlogPostById(body, cat, id);
+    const cat = body.cat === 'dog' ? Category.DOG : Category.CAT;
+    const data = {
+      title: body.title,
+      body: body.body,
+      category: cat,
+    };
+    console.log(data, id);
+    return this.appService.updateBlogPostById(id, data);
   }
 
   @HttpCode(204)
   @Delete(':id')
-  deleteBlogPostById(@Param('id') id: string) {
+  deleteBlogPostById(@Param('id', ParseUUIDPipe) id: string) {
     this.appService.deleteBlogPostById(id);
 
     // return;
@@ -78,9 +95,9 @@ export class AppController {
 
 //  category = dogs, cats, etc.
 
-//  get    /blog/post/:category/allPosts
+//  get    /blog/post/allPosts
 //  get    /blog/post/:category/all
-//  get    /blog/post/:category/:id
-//  post   /blog/post/:category/
-//  put   /blog/post/:category/:id
-//  delete  /blog/post/:category/:id
+//  get    /blog/post/:id
+//  post   /blog/post/
+//  put   /blog/post/:id
+//  delete  /blog/post/:id

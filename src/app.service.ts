@@ -3,15 +3,17 @@ import blog_data from './data';
 import { Category } from './data';
 import { v4 as uuid } from 'uuid';
 
-type CreatePost = {
+export type CreatePost = {
   title: string;
   author: string;
   body: string;
+  category: Category;
 };
 
 type UpdatePost = {
   title: string;
   body: string;
+  category: Category;
 };
 
 @Injectable()
@@ -24,16 +26,13 @@ export class AppService {
     return blog_data.posts.filter((post) => post.category === category);
   }
 
-  getBlogPostById(category: Category, id: string) {
-    const cat = category === 'dog' ? Category.DOG : Category.CAT;
-    const data = blog_data.posts.filter(
-      (post) => post.category === cat && post.id === id,
-    );
+  getBlogPostById(id: string) {
+    const data = blog_data.posts.filter((post) => post.id === id);
 
     return data;
   }
 
-  createNewBlogPost({ title, author, body }: CreatePost, category: Category) {
+  createNewBlogPost({ title, author, body, category }: CreatePost) {
     const newBlogPost = {
       id: uuid(),
       title,
@@ -49,15 +48,12 @@ export class AppService {
     return newBlogPost;
   }
 
-  updateBlogPostById(body: UpdatePost, cat: Category, id: string) {
-    const data = blog_data.posts
-      .filter((post) => post.category === cat)
-      .find((post) => post.id === id);
-    console.log(data);
+  updateBlogPostById(id: string, body: UpdatePost) {
+    const data = blog_data.posts.filter((post) => post.id === id);
 
     if (!data) return;
 
-    const dataIndex = blog_data.posts.findIndex((post) => post.id === data.id);
+    const dataIndex = blog_data.posts.findIndex((post) => post.id === id);
 
     blog_data.posts[dataIndex] = {
       ...blog_data.posts[dataIndex],
