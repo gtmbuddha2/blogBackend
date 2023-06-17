@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { Category } from './data';
 import { AppService } from './app.service';
+import { CreateNewBlogPostDto, updateBlogPostByIdDto } from './dtos/post.dto';
 
 @Controller('blog/post/')
 export class AppController {
@@ -40,17 +41,7 @@ export class AppController {
   @Post('')
   createNewBlogPost(
     @Body()
-    {
-      title,
-      author,
-      body,
-      category,
-    }: {
-      title: string;
-      author: string;
-      body: string;
-      category: Category;
-    },
+    { title, author, body, category }: CreateNewBlogPostDto,
   ) {
     const cat = category === 'dog' ? Category.DOG : Category.CAT;
 
@@ -67,20 +58,15 @@ export class AppController {
   @Put(':id')
   updateBlogPostById(
     @Body()
-    body: {
-      title: string;
-      body: string;
-      cat: string;
-    },
+    body: updateBlogPostByIdDto,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
-    const cat = body.cat === 'dog' ? Category.DOG : Category.CAT;
+    const cat = body.category === 'dog' ? Category.DOG : Category.CAT;
     const data = {
-      title: body.title,
-      body: body.body,
+      title: body.title ? body.title : '',
+      body: body.body ? body.body : '',
       category: cat,
     };
-    console.log(data, id);
     return this.appService.updateBlogPostById(id, data);
   }
 

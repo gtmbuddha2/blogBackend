@@ -11,9 +11,9 @@ export type CreatePost = {
 };
 
 type UpdatePost = {
-  title: string;
-  body: string;
-  category: Category;
+  title?: string;
+  body?: string;
+  category?: Category;
 };
 
 @Injectable()
