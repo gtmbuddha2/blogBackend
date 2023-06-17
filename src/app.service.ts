@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import blog_data from './data';
 import { Category } from './data';
 import { v4 as uuid } from 'uuid';
+import { ResponsePostDto } from './dtos/post.dto';
 
 export type CreatePost = {
   title: string;
@@ -18,21 +19,30 @@ type UpdatePost = {
 
 @Injectable()
 export class AppService {
-  getAllBlogPosts() {
-    return blog_data.posts;
+  getAllBlogPosts(): ResponsePostDto[] {
+    return blog_data.posts.map((post) => new ResponsePostDto(post));
   }
 
-  getAllBlogPostsByCategory(category: Category) {
-    return blog_data.posts.filter((post) => post.category === category);
+  getAllBlogPostsByCategory(category: Category): ResponsePostDto[] {
+    return blog_data.posts
+      .filter((post) => post.category === category)
+      .map((post) => new ResponsePostDto(post));
   }
 
-  getBlogPostById(id: string) {
+  getBlogPostById(id: string): ResponsePostDto[] {
     const data = blog_data.posts.filter((post) => post.id === id);
 
-    return data;
+    if (!data) return;
+
+    return data.map((post) => new ResponsePostDto(post));
   }
 
-  createNewBlogPost({ title, author, body, category }: CreatePost) {
+  createNewBlogPost({
+    title,
+    author,
+    body,
+    category,
+  }: CreatePost): ResponsePostDto {
     const newBlogPost = {
       id: uuid(),
       title,
@@ -45,10 +55,11 @@ export class AppService {
 
     blog_data.posts.push(newBlogPost);
 
-    return newBlogPost;
+    // return newBlogPost;
+    return new ResponsePostDto(newBlogPost);
   }
 
-  updateBlogPostById(id: string, body: UpdatePost) {
+  updateBlogPostById(id: string, body: UpdatePost): ResponsePostDto {
     const data = blog_data.posts.filter((post) => post.id === id);
 
     if (!data) return;
@@ -60,7 +71,7 @@ export class AppService {
       ...body,
     };
 
-    return blog_data.posts[dataIndex];
+    return new ResponsePostDto(blog_data.posts[dataIndex]);
   }
 
   deleteBlogPostById(id: string) {
